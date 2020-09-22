@@ -22,8 +22,9 @@ This is the important phase of any challange in HackTheBox. Always remember Enum
 
 So first things first we are going to scan this machine for open ports and services.
 
-```
-sudo nmap -sC -sV -O -oN nmap/buff 10.10.10.198 
+`sudo nmap -sC -sV -O -oN nmap/buff 10.10.10.198`
+
+``` 
 // -sC : Perform nmap scan using default scripts (NOTE: You can use specific lua scripts to perform custom scans, please refer to man page)
 // -sV : Try to get the version of the services running in the system (NOTE: It does not return version of unknown services)
 // -O  : Operating System fingerprinting/Tries to guess which OS is running in the system
@@ -36,8 +37,21 @@ We got the nmap output. Let's examin it.
 
 So there is only one port open which is `port 8080/tcp` which is running `Apache httpd 2.4.43`. We also get information that the server is running php whose version is `PHP/7.4.6` and `OpenSSL/1.1.1g` and this is it, There are no more ports open in system.
 
-> NOTE: 
+> **NOTE**: 
 There is one thing i need to tell you reader. In the above nmap scan i haven't specified port range so nmap uses its default range. To Scan the complete 65535 ports you can use `-p-` flag but it will take hell lot of time believe me. There are tools which you can use to scan port in matter of seconds. You can try [`rustscan`]() or [`masscan`]().
+
+### Banner Grabbing
+
+Let's take a look at banner. Most of the time you can get lots and lots of information just from banner grabbing. For example which server it is running, Which PHP version it is running, Content-Length and list goes on. Don't ever underestimate banner grabbing because i have faced some challanges where banner grabbing gives you the information of vulnerable service running in the system. So lets begin.
+
+I am using telnet for banner grabbing. You can use NetCat for this purpose if you like. You can also use nmap to grab banner.
+First we are going to connect to port 8080 of the machine.
+`telnet 10.10.10.198 8080`
+when it is connected we have to send request with HEAD method to to get the banner
+`HEAD / HTTP/1.1`
+`Host: 10.10.10.198` and press enter
+You will get output like the image.
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/banner.png)
 
 ## Foothold
 
