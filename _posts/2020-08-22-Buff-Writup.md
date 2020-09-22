@@ -45,12 +45,19 @@ There is one thing i need to tell you reader. In the above nmap scan i haven't s
 Let's take a look at banner. Most of the time you can get lots and lots of information just from banner grabbing. For example which server it is running, Which PHP version it is running, Content-Length and list goes on. Don't ever underestimate banner grabbing because i have faced some challanges where banner grabbing gives you the information of vulnerable service running in the system. So lets begin.
 
 I am using telnet for banner grabbing. You can use NetCat for this purpose if you like. You can also use nmap to grab banner.
+
 First we are going to connect to port 8080 of the machine.
+
 `telnet 10.10.10.198 8080`
+
 when it is connected we have to send request with HEAD method to to get the banner
+
 `HEAD / HTTP/1.1`
+
 `Host: 10.10.10.198` and press enter
+
 You will get output like the image.
+
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/banner.png)
 
 ## Foothold
