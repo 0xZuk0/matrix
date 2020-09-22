@@ -1,6 +1,6 @@
 ---
 title: Buff Writup
-published: false
+published: true
 ---
 
 ![image](https://github.com/0xZuk0/matrix/tree/master/assets/profile.png)

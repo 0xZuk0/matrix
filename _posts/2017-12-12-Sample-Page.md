@@ -1,5 +1,5 @@
 ---
-title: Sample Page
+title: Buff Writup
 published: true
 ---
 
@@ -108,7 +108,7 @@ end
 <dt>Name</dt>
 <dd>Godzilla</dd>
 <dt>Born</dt>
-<dd>1952</dd>
+<dd>1952</dd> 
 <dt>Birthplace</dt>
 <dd>Japan</dd>
 <dt>Color</dt>
