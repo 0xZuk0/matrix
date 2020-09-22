@@ -76,6 +76,34 @@ The first thing which i do is check if `robots.txt` is present or not. Unfortuna
 
 `Gym Management Software 1.0` that's looking intresting. Lets google it.
 
+### Googling
+
+So after some Googling we found this
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/exploit.png)
+
+So we have an Unauthenticated Remote Command Execution. So lets download the exploit and try it.
+
+### Unauthenticated Remote Command Execution
+
+We can see that the code is written in python. So lets execute the exploit
+
+`python exploit.py`
+
+We get the following output
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/expbanner.png)
+
+So we have to pass the WEBAPP_URL to the exploit to work. So let's do it
+
+`python exploit.py 'http://10.10.10.198/8080/'`
+
+Andddd.... Bingo!! We got a RCE in the machine
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/postexp.png)
+
+
+
 ## Lateral Movement
 
 ## Priv Esc
