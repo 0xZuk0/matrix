@@ -5,19 +5,19 @@ published: true
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/profile.png)
 
-## [](#content)Content
-- [Introduction](#introduction)
-- [Enumertion](#enumeration)
-- [FootHold](#foothold)
-- [Lateral Movement](#lateral_movement)
-- [Priv Esc](#root)
+## Content
+1. [Introduction](#introduction)
+1. [Enumertion](#enumeration)
+1. [FootHold](#foothold)
+1. [Lateral Movement](#lateral-movement)
+1. [Priv Esc](#priv-esc)
 
-## [](introduction)Introduction
+## Introduction
 
-## [](#enumeration)Enumeration
+## Enumeration
 
-## [](#foothold)Foothold
+## Foothold
 
-## [](#lateral_movement)Lateral Movement
+## Lateral Movement
 
-## [](#root)Priv Esc
+## Priv Esc
