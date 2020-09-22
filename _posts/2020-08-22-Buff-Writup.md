@@ -14,7 +14,7 @@ published: true
 
 ## Introduction
 
-## Enumeration
+## **Enumeration**
 
 This is the important phase of any challange in HackTheBox. Always remember Enumeration is the key. Whenever you are stuck always get back to enumeration phase because most of the time people miss the small details. So lets begin our challange.
 
@@ -35,7 +35,7 @@ We got the nmap output. Let's examin it.
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/nmap.png)
 
-So there is only one port open which is `port 8080/tcp` which is running `Apache httpd 2.4.43`. We also get information that the server is running php whose version is `PHP/7.4.6` and `OpenSSL/1.1.1g` and this is it, There are no more ports open in system.
+So there is only one port open which is `port 8080/tcp` which is running `Apache httpd 2.4.43` and have http-title `mrb3 Bro Hut`. We also get information that the server is running php whose version is `PHP/7.4.6` and `OpenSSL/1.1.1g` and this is it, There are no more ports open in system.
 
 > **NOTE**: 
 There is one thing i need to tell you reader. In the above nmap scan i haven't specified port range so nmap uses its default range. To Scan the complete 65535 ports you can use `-p-` flag but it will take hell lot of time believe me. There are tools which you can use to scan port in matter of seconds. You can try [`rustscan`]() or [`masscan`]().
@@ -60,7 +60,21 @@ You will get output like the image.
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/banner.png)
 
+Its giving us same info which nmap gave us. There are some extra things like Cookie, Cache-Control etc. etc.. They are not looking that intresting to us. So let's move ahead.
+
 ## Foothold
+
+### Visit to port 8080
+
+So we have seen in the nmap scan that port 8080/tcp is open which is running apace server. So let's take a look. Visiting to the webpage we see the following webpage.
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/home.png)
+
+The first thing which i do is check if `robots.txt` is present or not. Unfortunately we are out of luck this time. Second thing i try to look at the source code and look for anything fishy, but again i didn't find anything. Looking here and there we found something intresting in the contact page.
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/contact.png)
+
+`Gym Management Software 1.0` that's looking intresting. Lets google it.
 
 ## Lateral Movement
 
