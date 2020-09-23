@@ -251,7 +251,7 @@ Anddd... Boom! We get a root shell.
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/rootshell.png)
 
-> **NOTE** : If the exploit doesn't word execute it multiple time.
+> **NOTE** : If the exploit doesn't work execute it multiple time.
 
 Thanks for reading this post. If you think that something is missing or you didn't get it please feel free to email me at `cyber.antiru@gmail.com`.
 
