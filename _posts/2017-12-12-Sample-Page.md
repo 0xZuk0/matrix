@@ -1,5 +1,5 @@
 ---
-title: Buff Writup
+title: Sample Page
 published: true
 ---
 
