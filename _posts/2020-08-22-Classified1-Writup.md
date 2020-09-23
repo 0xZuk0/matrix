@@ -37,7 +37,7 @@ We got the nmap output. Let's examin it.
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Buff/nmap.png)
 
-So there is only one port open which is `port 8080/tcp` which is running `Apache httpd 2.4.43` and have http-title `mrb3 Bro Hut`. We also get information that the server is running php whose version is `PHP/7.4.6` and `OpenSSL/1.1.1g` and this is it, There are no more ports open in system.
+So there is only one port open which is `port 8080/tcp` which is running `Apache httpd 2.4.43` and have http-title `mrb3 Bro Hut`. We also get information that the server is running php whose version is `PHP/7.4.6` and `OpenSSL/1.1.1g` is also present, There are no more ports open in system.
 
 > **NOTE**: 
 There is one thing i need to tell you reader. In the above nmap scan i haven't specified port range so nmap uses it's default range. To Scan the complete 65535 ports you can use `-p-` flag but it will take hell lot of time believe me. There are tools which you can use to scan port in matter of seconds. You can try [`rustscan`](https://github.com/RustScan/RustScan) or [`masscan`](https://github.com/robertdavidgraham/masscan).
