@@ -10,7 +10,7 @@ I'll get the opportunity to learn i won't miss it.
 Apart from where a black hoodie and sitting infront of my laptop you can find me either playing guitar for my band or reading book or playing with my dog ;-)
 
 Feel free to reach out to me
-* [HackTheBox]()
-* [Discord]()
-* [TryHackMe]()
-* [Email]()
+* [HackTheBox](https://www.hackthebox.eu/home/users/profile/336784)
+* Discord Username : Zuk0
+* [TryHackMe](https://tryhackme.com/p/Cast13l)
+* Email : cyber.antiru@gmail.com
