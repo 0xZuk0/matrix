@@ -18,13 +18,13 @@ First things first let's check the properties of the binary using following comm
 
 `file badchars`
 
-![image](file command output)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/file%20command%20output.png)
 
 We can see that the binary is a 64-bit executable in which libraries are dynamically linked, We also observe that binary is not striped. Now Let's run it. 
 
 On running the binary we can see the following output.
 
-![image](output of running binary)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/running%20badchars.png)
 
 To make this challange easy it already tell us about the bad characters which should not be present in our input. These characters are `x`, `g`, `a` and `.`. After that it asks for user input and then exit with a `Thank you!` message.
 
@@ -34,7 +34,7 @@ Let's analyze this binary in [`gdb`]. You can use radare2 if you want. It's tota
 
 `info functions`     (This command lists the functions present in the binary)
 
-![image](functions image)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/info%20functions.png)
 
 We can observe that there are 2 intresting functions `pwnme@plt` and `print_file@plt`. Now if you don't know about `PLT` and `GOT` you can learn about them [`here`](https://systemoverlord.com/2017/03/19/got-and-plt-for-pwning.html). In simple words these are not the actual address of `pwnme` and `print_file`. These are the address to `PLT` table which looks for their actual address in the library using dynamic linker to populate the `GOT.PLT` table.
 
@@ -42,11 +42,11 @@ let's disassemble `main`, `userfulFunction`, `userfulGadgets`. To disassemble tr
 
 `disassemble <function name>`
 
-![image](main disass)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/main%20disass.png)
 
-![image](userfulFunction)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/usefulFunction%20disass.png)
 
-![image](userfulGadgets)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/disass%20gadget.png)
 
 We see that `main` function is simply calling `pwnme@plt`, `userfulFunction` is calling `print_file` function and `userfulGadgets` contains some useful gadgets which we are going to use to complete this challange.
 
@@ -77,11 +77,11 @@ and then load the `badchars` in gdb and hit
 `run < offset_payload`
 
 we hit `SIGSEGV`. Now copy the value of `RBP` and use the following command to find the offset.
-![image](segfault)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/value%20of%20RBP.png)
 
 `msf-pattern_offset -l 200 -q "0x4132624131624130"`
 
-![image](offset)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/offset.png)
 
 So our `offset` is `32 + 8` equals `40` (Plus 8 bytes to fill `RBP`)
 
@@ -89,7 +89,7 @@ So our `offset` is `32 + 8` equals `40` (Plus 8 bytes to fill `RBP`)
 
 Since we know that characters `x`, `g`, `a` and `.` are badchars so we have to find a way to sneak these characters into the memory. To do this we can find the `non bad characters` which when `xor` with any number produce the bad characters. For example `b ^ 3 = a`, `d ^ 3 = g` and so on. We can find these pair using the following code snipper.
 
-![image](code snippet)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/finding%20characters.png)
 
 I'm gonna choose `3` to xor the characters. You can choose whichever fits you.
 
@@ -112,7 +112,7 @@ To find the `gadget` I'm gonna use `ropper` because why not. We have to find the
 
 `ropper --file badchars -d 6178672e --search "xor"`
 
-![image](xor ropper)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/xor%20ropper.png)
 
 We will use `xor byte ptr [r15], r14b; ret;` for our purpose.
 
@@ -124,7 +124,7 @@ So let's start writing `flag.txt` into a writable memory section. To find the me
 
 `readelf -S ./badchars`
 
-![image](memory information)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/Writable%20Memory.png)
 
 Now we can see the memory section with different `flags` enabled. The above image is showing the memory section with `W` flag. You can choose any memory section until and unless you don't corrupt the important data present in that memory. I'm gonna go with `.data` section for now.
 
@@ -132,7 +132,7 @@ Let's check `.data` section. The address of `.data` section is `0x00000000006010
 
 `x/40xg 0x0000000000601028`
 
-![image](data section)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/data%20section.png)
 
 We can see that the memory is completly empty, So this makes it perfect candidate for us. 
 
@@ -145,7 +145,7 @@ Now let's find the gadget to write into memory. In assembly language the instruc
 `ropper --file badchars -b 6178672e --search "mov [%]"`
 
 
-![image](ropper output)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/mov%20ropper.png)
 
 From the output `mov qword ptr [r13], r12; ret;` gadget will do the trick.
 
@@ -153,7 +153,7 @@ So let's find the `pop` gadget to pop the address of `.data` into `r13` register
 
 `ropper --file badchars -b 6178672e --search "pop"`
 
-![image](pop output)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/pop%20ropper.png)
 
 `pop r12; pop r13; pop r14; pop r15; ret;` will do our job.
 
@@ -163,9 +163,9 @@ Let's also find a `pop r15; ret;` and `pop rdi; ret;` gadget.
 
 `ropper --file badchars -b 6178672e --search "pop rsi; ret;"`
 
-![image](pop r15)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/pop%20r15.png)
 
-![image](pop rdi)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/pop%20rdi.png)
 
 We are set up to write the `flag.txt` in our `.data` section. Below is the rough sketch of ROP chain which we are going to use to execute the attack.
 
@@ -237,7 +237,7 @@ p.sendline(payload)
 print p.recvuntil('}')
 ```
 
-![image](action)
+![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/Action.png)
 
 Bingo! We completed the challange. Please Note that we can write the exploit more effeciently.
 
