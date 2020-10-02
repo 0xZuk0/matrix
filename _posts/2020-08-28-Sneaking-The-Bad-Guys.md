@@ -209,7 +209,7 @@ We are going to use `pwntools` to create out exploit script. Below is the exploi
 
 > **NOTE** : I added 7 to `base data_address` because while I was `xoring` back the characters one of the characters address contained `bad character` so to remove that anomaly i just shifted the `.data` address. 
 
-```
+```python
 #!/usr/bin/env python
 
 from pwn import *
