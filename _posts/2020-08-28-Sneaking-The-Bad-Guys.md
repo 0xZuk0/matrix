@@ -37,7 +37,7 @@ On running the binary we can see the following output.
 
 To make this challange easy it already tell us about the bad characters which should not be present in our payload. These characters are `x`, `g`, `a` and `.`. After that it asks for user input and then exit with a `Thank you!` message.
 
-Let's analyze this binary in [`gdb`](). You can use radare2 if you want. It's totally up to you.
+Let's analyze this binary in [`gdb`](https://www.gnu.org/software/gdb/) with [`pwndb`](https://github.com/pwndbg/pwndbg) extension. You can use radare2 if you want. It's totally up to you.
 
 `gdb ./badchars -q`
 
