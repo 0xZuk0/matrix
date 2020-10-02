@@ -5,12 +5,21 @@ published: false
 
 ## Content
 
+1. [Introduction](#introduction)
+2. [Checking Properties](#checking-properties)
+3. [Attack Plan](#attack-plan)
+4. [Finding Offset](#finding-offset)
+5. [Enemy in Disguise](#enemy-in-disguise)
+6. [Writing flag.txt](#writing-flag.txt)
+7. [Executing the Attack](#executing-the-attack)
 
-There are times when you find a buffer overflow vulnerability and look forward to exploit it. You smashed the stack and got the control of instruction pointer, After that you write shellcode into a memory location and direct the control flow to that memory location. What Do you expect ? A shell of course but instead you get Segmentation fault. Why does this happened ? You took care of everything so it should work perfectly. Later you came to know that the segfault was because of bad characters. The application is filtering the badcharacters dues to which your payload gets corrupted.
+# **Introduction**
+
+There are times when you find a buffer overflow vulnerability and look forward to exploit it. You smash the stack and get the control of instruction pointer, After that you write shellcode into memory and direct the control flow to that memory location. What Do you expect ? A shell of course but instead you get Segmentation fault. Why does this happened ? You took care of everything so it should work perfectly. Later you came to know that the segfault was because of bad characters. The application is filtering the badcharacters dues to which your payload gets corrupted.
 
 So let's learn how to sneak bad characters into memory location. For this we are going to solve ROPEmporium `BadChar` Challange. You can download the 64-bit binary from [`here`](badchar).
 
-On extrating the zip file we get a `badchar` executable, `libbadchars.so` library and `flag.txt`. The challange is we have to call `print_file()` function with `flag.txt` parameter, That's all.
+On extracting the zip file we get a `badchar` executable, `libbadchars.so` library and `flag.txt`. The challange is, We have to call `print_file()` function with `flag.txt` parameter, That's all.
 
 # **Checking Properties**
 
@@ -26,13 +35,13 @@ On running the binary we can see the following output.
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/running%20badchars.png)
 
-To make this challange easy it already tell us about the bad characters which should not be present in our input. These characters are `x`, `g`, `a` and `.`. After that it asks for user input and then exit with a `Thank you!` message.
+To make this challange easy it already tell us about the bad characters which should not be present in our payload. These characters are `x`, `g`, `a` and `.`. After that it asks for user input and then exit with a `Thank you!` message.
 
-Let's analyze this binary in [`gdb`]. You can use radare2 if you want. It's totally up to you.
+Let's analyze this binary in [`gdb`](). You can use radare2 if you want. It's totally up to you.
 
 `gdb ./badchars -q`
 
-`info functions`     (This command lists the functions present in the binary)
+`info functions`           (This command lists the functions present in the binary)
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/info%20functions.png)
 
@@ -56,9 +65,9 @@ Since to complete this challange let's see if `flag.txt` string is present in bi
 
 `strings badchars | grep -i flag.txt`
 
-Unfortunately there are no `flag.txt` string which we can pass to `print_file` function. So we have to write the `flag.txt** into some writable memory section.
+Unfortunately there are no `flag.txt` string which we can pass to `print_file` function. So we have to write the `flag.txt` into some writable memory section.
 
-## **Attack Plan**
+# **Attack Plan**
 
 1. Find the offset.
 2. Changin the form of `flag.txt`
@@ -66,7 +75,7 @@ Unfortunately there are no `flag.txt` string which we can pass to `print_file` f
 3. Move the `flag.txt` from memory to `rdi` register.
 4. call the `print_file` function to print the flag.
 
-## **Finding offset**
+# **Finding offset**
 
 Create the payload pattern using following command
 
@@ -77,6 +86,7 @@ and then load the `badchars` in gdb and hit
 `run < offset_payload`
 
 we hit `SIGSEGV`. Now copy the value of `RBP` and use the following command to find the offset.
+
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/value%20of%20RBP.png)
 
 `msf-pattern_offset -l 200 -q "0x4132624131624130"`
@@ -85,7 +95,7 @@ we hit `SIGSEGV`. Now copy the value of `RBP` and use the following command to f
 
 So our `offset` is `32 + 8` equals `40` (Plus 8 bytes to fill `RBP`)
 
-## **Enemy in Disguise**
+# **Enemy in Disguise**
 
 Since we know that characters `x`, `g`, `a` and `.` are badchars so we have to find a way to sneak these characters into the memory. To do this we can find the `non bad characters` which when `xor` with any number produce the bad characters. For example `b ^ 3 = a`, `d ^ 3 = g` and so on. We can find these pair using the following code snipper.
 
@@ -108,7 +118,7 @@ so our final form of `flag.txt` will be `flbd-t{t`.
 
 Let's find a gadget which will xor back these character. 
 
-To find the `gadget` I'm gonna use `ropper` because why not. We have to find the find gadgets which do not contain any `bad characters`.
+To find the `gadget` I'm gonna use `ropper` because why not. We have to find the gadgets which do not contain any `bad characters`.
 
 `ropper --file badchars -d 6178672e --search "xor"`
 
@@ -118,7 +128,7 @@ We will use `xor byte ptr [r15], r14b; ret;` for our purpose.
 
 > **NOTE** : `-b` flag is use to specify the bad characters. `6178672e` is the hex format of `a`, `x`, `g` and `.`.
 
-## **Writing flag.txt**
+# **Writing flag.txt**
 
 So let's start writing `flag.txt` into a writable memory section. To find the memory sections with `W` flag try this command.
 
@@ -126,7 +136,7 @@ So let's start writing `flag.txt` into a writable memory section. To find the me
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/Writable%20Memory.png)
 
-Now we can see the memory section with different `flags` enabled. The above image is showing the memory section with `W` flag. You can choose any memory section until and unless you don't corrupt the important data present in that memory. I'm gonna go with `.data` section for now.
+Now we can see the memory section with different `flags` enabled. The above image is showing the memory section with `W` flag. You can choose any memory section until and unless you don't corrupt the data present in that memory. I'm gonna go with `.data` section for now.
 
 Let's check `.data` section. The address of `.data` section is `0x0000000000601028`. Load the `badchars` in gdb. set a `breakpoint` in `main` and then run it. After hitting the `breakpoint` examing the `.data` address using following command
 
@@ -174,26 +184,26 @@ ROP Chain
 
 Address of `pop r12; pop r13; pop r14; pop r15; ret;` gadget.
 `flag.txt` string
-Address of .data section              (0x0000000000601028)
-0x3                                   (To XOR the character)
-0x0000000000601028 + 2                (Address pointing to `b` in `flbd-t{t`)
+Address of .data section                                      (0x0000000000601028)
+0x3                                                           (To XOR the character)
+0x0000000000601028 + 2                                        (Address pointing to `b` in `flbd-t{t`)
 Address of `mov qword ptr[r13], r12; ret` gadget
 Address of `xor byte ptr [r15], r14b; ret;`
 Address of `pop r15; ret;`
-0x0000000000601028 + 3                (Address pointing to `d` in `flbd-t{t`)
+0x0000000000601028 + 3                                        (Address pointing to `d` in `flbd-t{t`)
 Address of `xor byte ptr [r15], r14b; ret;`
 Address of `pop r15; ret;`
-0x0000000000601028 + 4                (Address pointing to `-` in `flbd-t{t`)
+0x0000000000601028 + 4                                        (Address pointing to `-` in `flbd-t{t`)
 Address of `xor byte ptr [r15], r14b; ret;`
 Address of `pop r15; ret;`
-0x0000000000601028 + 6                (Address pointing to `{` in `flbd-t{t`)
+0x0000000000601028 + 6                                        (Address pointing to `{` in `flbd-t{t`)
 Address of `xor byte ptr [r15], r14b; ret;`
 Address of `pop rdi; ret;`
 Address of `print_file@plt`
 ```
 
 
-## **Executing the Attack**
+# **Executing the Attack**
 
 We are going to use `pwntools` to create out exploit script. Below is the exploit script.
 
@@ -239,6 +249,6 @@ print p.recvuntil('}')
 
 ![image](https://raw.githubusercontent.com/0xZuk0/matrix/master/assets/Badchar/Action.png)
 
-Bingo! We completed the challange. Please Note that we can write the exploit more effeciently.
+Bingo! We completed the challange. Please Note that we can write the exploit more efficiently.
 
 Thank you so much for taking your time to read this. Keep Hacking.
